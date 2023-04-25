@@ -23,34 +23,16 @@ userRouter.get(
 userRouter.post(
     '/signin',
     expressAsyncHandler(async (req, res) => {
-      
-      
-      const user = await User.findOne({ email: req.body.email } );
-      const user2 = await User.findOne({ oab: req.body.email } );
+      const user = await User.findOne({ email: req.body.email } ) || await User.findOne({ oab: req.body.email } );
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           res.send({
             _id: user._id,
             name: user.name,
             email: user.email,
-            isAdmin: user.isAdmin,
+            isAdmin: user.isAdmin,  
             oab:user.oab,
-            
             token: generateToken(user),
-          });
-          return;
-        }
-      }
-      if (user2) {
-        if (bcrypt.compareSync(req.body.password, user2.password)) {
-          res.send({
-            _id: user2._id,
-            name: user2.name,
-            email: user2.email,
-            isAdmin: user2.isAdmin,
-            oab:user2.oab,
-            
-            token: generateToken(user2),
           });
           return;
         }
@@ -92,6 +74,7 @@ userRouter.get(
 
 userRouter.get(
     '/:id',
+    isAuth,
     expressAsyncHandler(async (req, res) => {
       const user = await User.findById(req.params.id);
       if (user) {
